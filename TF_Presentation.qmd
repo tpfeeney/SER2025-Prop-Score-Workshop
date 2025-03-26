@@ -1,0 +1,21 @@
+---
+title: "Propensity Score Workshop"
+author: "Timothy Feeney"
+format: revealjs
+---
+
+## Propensity Score Estimation
+
+
+
+## Propensity Score Diagnostics
+
+## Applications with Propensity Scores
+
+## Stabilized Versus Unstabilized
+
+## Standard Error Estimation-Bootstrapping
+
+## Standard Error Estimation
+### M-Estimation
+
