@@ -1,16 +1,393 @@
 ---
 title: "Propensity Score Workshop"
-author: "Timothy Feeney"
-format: revealjs
+author: "Timothy Feeney, Catie Wiener, Tobias Kurth"
+format: 
+  revealjs:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    slide-number: true
+    chalkboard: 
+      buttons: true   
+    footer: '***SER 2025 Propensity Score Workshop, June 9th 2025***'
+toc: true
+toc-depth: 1
+  
 ---
+# Preliminaries
+
+## Teaching Team Introductions
+
+- Tobias Kurth, Charité, Berlin Germany
+- Catie Weiner, UNC Chapel Hill, USA
+- Timothy Feeney, UNC Chapel Hill, USA
+
+## Outline of the workshop
+
+1) Didactics
+  - background and theory of basic propensity scores
+  - estimands discussion
+  - theory of inverse probability weighting
+  - theory of standard error (SE) estimation
+2) Practical Activities
+  - Breakout sessions to practice and use what we are teaching
+  - Will do propensity score analysis, boostrapping, m-estimation
+  - Will use R for coding. RMarkdown Files have been provided for reference
+
+## Schedule for the Afternoon
+### First half
+
+1:10-1:20 Introduction to Clinical Problem
+
+1:20-1:40 First Activity:
+
+  - Descriptive and Crude Analysis
+
+1:40-2:40 Didactics:
+
+  - Overview of causal, estimands, propensity score basics
+
+2:40-3:10 Second Activity: 
+
+  - Estimation of ATE and ATT using IPTW
+
+3:10-3:30 Break
+
+## Schedule for the Afternoon
+### Second half
+
+3:30-4:10 Didactics: 
+
+  - Standard Error estimation using Bootstrapping 
+  - Standard error estimation using M-estimation
+
+4:10-4:50 Third Activity: 
+
+  - Using Bootstrap and M-estimation
+
+4:50-5:00 Questions and Closing Remarks
+
+## Acknowledgments
+
+This workshop uses information from the following resources
+
+
+- HSPH EPI 271 course materials
+
+- UNC CH BIOS 776 Causal Notes
+
+- What If Casual Textbook by *Hernan and Robins*
+
+- Manuscripts by Kurth *et al.* 2005, Wiener *et al* 2025 and Ross *et al.* 2023
+
+- Essential Statistical Inference by *Stefanski and Boos*
+
+## {.center}
+
+
+**What do you want to get out of this course?**
+
+::: {.notes}
+We want to know what you want to get out of this course
+:::
+
+# Question of Interest and Background
+
+## The Clinical Setup
+![Two General Types Of Stroke](figures/stroke.jpeg)
+
+## The Clinical Setup
+
+  - Tissue plasminogen activatory (t-PA) can breakdown clots and has become a standard of care
+
+  - Kurth *et al.* in 2005 found that the effect of TPA in an observational cohort depends on method of confounding control, and when standardized to the whole sample tPA was harmful.
+
+  - PS distribution also suggested that there specific populations where there might be benefit
+
+## Dataset
+
+Westphalian Stroke Registry
+
+- Stroke Registry of Northwestern Germany (Qualitätssicherung Schlaganfall Nordwestdeutschland, QSNWD)
+
+- Data obtained from clinical records since 1999
+
+- Contains information on: 
+
+  - sociodemographis, cerebrovascular factors, comorbidites
+  - details of hospital, admission modality
+  - stroke type and severity, procedures, complications, and status at discharge
+
+## FIRST ACTIVITY {.center}
+
+[]: this will allow system time to be displayed in real time for presentation purposes
+### 🕒 Current Time:
+<div id="clock" style="font-size: 1.5em; margin-bottom: 1em;"></div>
+
+### ⏱ Timer (since slide loaded):
+<div id="timer" style="font-size: 1.5em;"></div>
+
+<script>
+  // Real-time system clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').innerText = 
+      now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock(); // initial call
+
+  // Count-up timer
+  const startTime = Date.now();
+
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const secs = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timer').innerText = `${mins}:${secs}`;
+  }
+
+  setInterval(updateTimer, 1000);
+  updateTimer(); // initial call
+</script>
+
+# What are we aiming to do here?
+
+## The question of interest {.center}
+
+What effect does tPA have on all cause mortality?
+
+Is the effect the same in everyone? Is it the same in the whole population?
+
+## Approaches to finding an answer
+
+![](tables/research_types.png)
+
+::: footer 
+Hernán et al. (2019) A Second Chance to Get Causal Inference Right *Chance*
+:::
+
+## Learning about causes of effects
+
+- if we gave a person tPA and observed their outcome 
+
+- if instead we witheld tPA and observed the outcome
+
+Would the outcomes be the same?
+
+![](figures/rewind_time.png)
+
+## Learning about causes of effects
+
+- This is the idea behind counterfactuals
+
+- If $A$ is treatment and $i$ indexes a person
+
+- $Y$ is the observed outcome and
+
+- $Y^{A=a}$ is the outcome had treatment $A=a$ 
+
+- the comparisons of interest are $Y_i^{A=\text{tPA}}-Y_i^{A=\text{no tPA}}$  $\forall i$
+
+- in words, would would the individual effect be had each patient $i$ recieved tPA versus not
+
+## Learning about causes of effects
+
+BUT
+
+- we cannot learn about individual effects; 
+    - we only have $Y_i^{A=\text{tPA}}$ OR $Y_i^{A=\text{no tPA}}$ for each $i$
+
+- Thus we calculate $\textrm{E}\left[Y_i^{A=\text{tPA}}-Y_i^{A=\text{no tPA}}\right]$ 
+
+- AKA the average treatment effect (ATE)
+
+- The average effect had everyone gotten treatment, tPA, versus had everyone gotten no treatment, no tPA.
+
+## Learning about causes of effects {.center}
+
+:::: {.columns}
+::: {.column width="60%"}
+One approach is to use a time machine
+
+::: {.fragment .fade-up}
+But we know this is not feasible (currently)
+:::
+
+:::
+
+::: {.column width="40%"}
+![Tardis](figures/tardis.png)
+:::
+::::
+
+## Estimating the Average Treatment Effect
+
+Two ways to approach this:
+
+|  | Benefits | Problems |
+|---|:-----|:------|
+| Randomized Trials    | Balanced groups in expectation   |   Perhaps infeasible, non generalizable | 
+| Observational Studies     | Generalizable, potentially more feasible  |   Confounding, *et al* |
+
+We will focus on Observational Studies here
+
+## Causal Identification Conditions {auto-animate=true}
+
+::: {style="margin-top: 100px;"}
+Conditional Exchangeability: $Y^{(1)}, Y^{(0)}\perp\!\!\!\perp A| L$
+:::
+
+Consistency: $Y=Y^{a=1}A+Y^{a=0}(1-A)$
+
+Positivity: $P[A=a|L]>0$ 
+
+## A major concern of non-randomized studies {auto-animate=true}
+
+::: {style="margin-top: 200px; font-size: 1em; color: red;"}
+Conditional Exchangeability: $Y^{(1)}, Y^{(0)}\perp\!\!\!\perp A| L$
+:::
+
+## Confounders are a major concern
+
+Confounder: On a causal path to the outcome AND on a causal path to the exposure AND not caused by the the outcome or exposure.
+
+![](figures/confounder.png)
+
+
+## Methods to control for confounding
+
+- Matching
+
+- Restriction
+
+- Regression Modeling
+
+- Weighting
+
+::: {.fragment .fade-up}
+These are all amenable to propensity methods
+:::
+
+::: {.fragment .fade-up}
+We will focus on weighting
+:::
+
+## Propensity Score- Definition
+
+The propensity score is the probability of being in a treatment group conditional on covariates--it is the propensity to be treated
+
+$$P[A=a| \mathbf{L}]$$
+
+where $A$ is treatment level and $\mathbf{L}$ is a vector of covariates.
+
+We will denote propensity score as $\pi(\mathbf{L})$ for simplicity
+
+## Propensity score- Exhangeability
+
+The propensity score is a balancing score[^1]. If we have a set of $\mathbf{L}$ such that $\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \mathbf{L}$ then 
+$$\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \pi \left(\mathbf{L}\right)$$
+
+In other words, if $\mathbf{L}$ represents a vector that contains all variables necessary to achieve exchangeability then the propensity score can provide exchangeability.
+
+[^1]: Rosenbaum and Rubin. *Biometrika* 1983
 
 ## Propensity Score Estimation
 
+Typically use logistic regression to estimate.
+
+$\text{logit}\left[\widehat{\pi}\left(\mathbf{L}\right)\right]=\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)=\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)$
+
+and
+
+$\widehat{\pi}\left(\mathbf{L}\right)=\text{expit}\left[\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)\right]=\text{expit}\left[\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\right]$
+
+where $\text{logit}=\text{log}\left(\frac{P\left[A=a \mid \mathbf{L}\right]}{1-P\left[A=a \mid \mathbf{L}\right]}\right)$ and $\text{expit}=\left(\frac{1}{1+\exp^{\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)}} \right)$
+in R 
+
+```{.r}
+#model the logit of being in treatment
+model<-glm(A~L, data=df, family=binomial(link='logit'))
+
+#predict the probability of being in treatment based on covariates
+prop_score<-predict(model, type='response')
+```
+
+## Model building and variable selection
+
+Like all causal analysis, variable selection should be principled, guided by your estimand, and driven by your DAG
+
+1) Identify Variables in your DAG that you believe may be confounders.[^2]
+
+2) Exclude variables that are 
+  a) mediators of your effect of interest
+  b) instruments of your exposure 
+
+[^2]: Brookhart *et al.* Variable Selection for Propensity Score Models. *AJE* 2006
+
+## DAG {auto-animate=true}
+
+![](figures/daggity.png)
+
+## DAG {auto-animate=true}
+
+| Medical Hx | Sx and Signs | Demographics | Admission |
+|-----------------|-----------------|-----------------|-----------------|
+| Cardiac Illness Hx    | Paresis    | Age  | Transport Type |
+| HTN                   | Aphasia| Gender   | Time To admission |
+| AFib                  | Consciousness    | Admission Location   |
+| Diabetes              | Rankin Scale   |  |
+
+## DAG {auto-animate=true}
+
+![](figures/dag.png)
+
+## Advantages
+
+::::{.columns}
+
+:::{.column width="40%"}
+
+  - Collapses predictors of treatment into a single value.
+    - avoid curse of dimensionality.[^1]
+
+  - Relatively easy to estimate.
+
+  - Multiple uses.
+:::
+
+:::{.column width="60%"}
+![](figures/prop_score.png)
+:::
+
+::::
+[^1]: Cepeda *et el.* Comparison of Logistic Regression versus Propensity Score When the Number of Events Is Low and There Are Multiple Confounders. *AJE*. 2003
+
+
+
+## Disadvantages
+	
+  - Still rely on the assumption that you have all variables necessary to achieve exchangeability. 
+  
+    - **There is no magic here, this is not an RCT**
+
+  - People with same propensity score may have different distribution of covariates.
+
+  - Adds and extra step to estimation.
+
+  - Estimation of standard error may be more complex.
 
 
 ## Propensity Score Diagnostics
 
-## Applications with Propensity Scores
+-Distribution of scores
+
+-Overlap
+
+-Trimming?
+
+-Truncation?
 
 ## Stabilized Versus Unstabilized
 
@@ -19,3 +396,39 @@ format: revealjs
 ## Standard Error Estimation
 ### M-Estimation
 
+
+<!-- Starts 1pm
+1-1:10 intros and overview of course
+1:10-1:20 Introduction to clinical problem and the data we are using; TK
+-Can introduce our DAG here TK?
+1:20-1:40: First Activity
+	Reading in data
+	Make a table 1 with data (we need to have table 1 to compare to)
+	Crude /multivariable analysis (comparison estimates for crude and multivariable analysis)
+1:40-2:40p: Didactic Material TK, TF
+	Overview of causal
+Talk ATE
+	Overview of propensity scores
+		Theory
+		Advantages
+		Disadvantages
+		Model building and variable selection
+			-Can use a DAG to guide
+		Diagnostics
+			-Weight means, SMDs, distributions
+			-Solutions if deviations, trimming/truncation
+			-code
+			-model output
+	Introduce and discuss the ATT
+	Compare and contrast ATE
+2:40-3:10p Second Activity: Estimation of the ATE and ATT using IPTW
+3:10-3:30p: Break
+3:30-4:10p Didactic Material TF
+	How to make inference with these 
+	Standard Error estimation with Bootstrap (how it works, positives and negatives)
+	M-Estimation
+4:10-4:50p Third Activity:
+	We go through the ATE bootstrap and M-Estimation
+	They modify the ATE bootstrap and M-Estimation for the ATT
+	Simulation for coverage
+4:50-5p Questions and Goodbyes -->

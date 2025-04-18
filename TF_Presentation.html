@@ -9,7 +9,7 @@
 <link href="TF_Presentation_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.6.42">
 
-  <meta name="author" content="Timothy Feeney">
+  <meta name="author" content="Timothy Feeney, Catie Wiener, Tobias Kurth">
   <title>Propensity Score Workshop</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -28,11 +28,78 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="TF_Presentation_files/libs/revealjs/dist/theme/quarto-2f366650f320edcfcf53d73c80250a32.css">
   <link href="TF_Presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -132,20 +199,436 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Timothy Feeney 
+Timothy Feeney, Catie Wiener, Tobias Kurth 
 </div>
 </div>
 </div>
 
+</section><section id="TOC">
+<nav role="doc-toc"> 
+<h2 id="toc-title">Table of contents</h2>
+<ul>
+<li><a href="#/preliminaries" id="/toc-preliminaries">Preliminaries</a></li>
+<li><a href="#/question-of-interest-and-background" id="/toc-question-of-interest-and-background">Question of Interest and Background</a></li>
+<li><a href="#/what-are-we-aiming-to-do-here" id="/toc-what-are-we-aiming-to-do-here">What are we aiming to do here?</a></li>
+</ul>
+</nav>
 </section>
+<section>
+<section id="preliminaries" class="title-slide slide level1 center">
+<h1>Preliminaries</h1>
+
+</section>
+<section id="teaching-team-introductions" class="slide level2">
+<h2>Teaching Team Introductions</h2>
+<ul>
+<li>Tobias Kurth, Charité, Berlin Germany</li>
+<li>Catie Weiner, UNC Chapel Hill, USA</li>
+<li>Timothy Feeney, UNC Chapel Hill, USA</li>
+</ul>
+</section>
+<section id="outline-of-the-workshop" class="slide level2">
+<h2>Outline of the workshop</h2>
+<ol type="1">
+<li>Didactics</li>
+</ol>
+<ul>
+<li>background and theory of basic propensity scores</li>
+<li>estimands discussion</li>
+<li>theory of inverse probability weighting</li>
+<li>theory of standard error (SE) estimation</li>
+</ul>
+<ol start="2" type="1">
+<li>Practical Activities</li>
+</ol>
+<ul>
+<li>Breakout sessions to practice and use what we are teaching</li>
+<li>Will do propensity score analysis, boostrapping, m-estimation</li>
+<li>Will use R for coding. RMarkdown Files have been provided for reference</li>
+</ul>
+</section>
+<section id="schedule-for-the-afternoon" class="slide level2">
+<h2>Schedule for the Afternoon</h2>
+<h3 id="first-half">First half</h3>
+<p>1:10-1:20 Introduction to Clinical Problem</p>
+<p>1:20-1:40 First Activity:</p>
+<ul>
+<li>Descriptive and Crude Analysis</li>
+</ul>
+<p>1:40-2:40 Didactics:</p>
+<ul>
+<li>Overview of causal, estimands, propensity score basics</li>
+</ul>
+<p>2:40-3:10 Second Activity:</p>
+<ul>
+<li>Estimation of ATE and ATT using IPTW</li>
+</ul>
+<p>3:10-3:30 Break</p>
+</section>
+<section id="schedule-for-the-afternoon-1" class="slide level2">
+<h2>Schedule for the Afternoon</h2>
+<h3 id="second-half">Second half</h3>
+<p>3:30-4:10 Didactics:</p>
+<ul>
+<li>Standard Error estimation using Bootstrapping</li>
+<li>Standard error estimation using M-estimation</li>
+</ul>
+<p>4:10-4:50 Third Activity:</p>
+<ul>
+<li>Using Bootstrap and M-estimation</li>
+</ul>
+<p>4:50-5:00 Questions and Closing Remarks</p>
+</section>
+<section id="acknowledgments" class="slide level2">
+<h2>Acknowledgments</h2>
+<p>This workshop uses information from the following resources</p>
+<ul>
+<li><p>HSPH EPI 271 course materials</p></li>
+<li><p>UNC CH BIOS 776 Causal Notes</p></li>
+<li><p>What If Casual Textbook by <em>Hernan and Robins</em></p></li>
+<li><p>Manuscripts by Kurth <em>et al.</em> 2005, Wiener <em>et al</em> 2025 and Ross <em>et al.</em> 2023</p></li>
+<li><p>Essential Statistical Inference by <em>Stefanski and Boos</em></p></li>
+</ul>
+</section>
+<section id="section" class="slide level2 center">
+<h2></h2>
+<p><strong>What do you want to get out of this course?</strong></p>
+<aside class="notes">
+<p>We want to know what you want to get out of this course</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section></section>
+<section>
+<section id="question-of-interest-and-background" class="title-slide slide level1 center">
+<h1>Question of Interest and Background</h1>
+
+</section>
+<section id="the-clinical-setup" class="slide level2">
+<h2>The Clinical Setup</h2>
+
+<img data-src="figures/stroke.jpeg" class="r-stretch quarto-figure-center"><p class="caption">Two General Types Of Stroke</p></section>
+<section id="the-clinical-setup-1" class="slide level2">
+<h2>The Clinical Setup</h2>
+<ul>
+<li><p>Tissue plasminogen activatory (t-PA) can breakdown clots and has become a standard of care</p></li>
+<li><p>Kurth <em>et al.</em> in 2005 found that the effect of TPA in an observational cohort depends on method of confounding control, and when standardized to the whole sample tPA was harmful.</p></li>
+<li><p>PS distribution also suggested that there specific populations where there might be benefit</p></li>
+</ul>
+</section>
+<section id="dataset" class="slide level2">
+<h2>Dataset</h2>
+<p>Westphalian Stroke Registry</p>
+<ul>
+<li><p>Stroke Registry of Northwestern Germany (Qualitätssicherung Schlaganfall Nordwestdeutschland, QSNWD)</p></li>
+<li><p>Data obtained from clinical records since 1999</p></li>
+<li><p>Contains information on:</p>
+<ul>
+<li>sociodemographis, cerebrovascular factors, comorbidites</li>
+<li>details of hospital, admission modality</li>
+<li>stroke type and severity, procedures, complications, and status at discharge</li>
+</ul></li>
+</ul>
+</section>
+<section id="first-activity" class="slide level2 center">
+<h2>FIRST ACTIVITY</h2>
+<h3 id="current-time">🕒 Current Time:</h3>
+<div id="clock" style="font-size: 1.5em; margin-bottom: 1em;">
+
+</div>
+<h3 id="timer-since-slide-loaded">⏱ Timer (since slide loaded):</h3>
+<div id="timer" style="font-size: 1.5em;">
+
+</div>
+<script>
+  // Real-time system clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').innerText = 
+      now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock(); // initial call
+
+  // Count-up timer
+  const startTime = Date.now();
+
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const secs = String(elapsed % 60).padStart(2, '0');
+    document.getElementById('timer').innerText = `${mins}:${secs}`;
+  }
+
+  setInterval(updateTimer, 1000);
+  updateTimer(); // initial call
+</script>
+</section></section>
+<section>
+<section id="what-are-we-aiming-to-do-here" class="title-slide slide level1 center">
+<h1>What are we aiming to do here?</h1>
+
+</section>
+<section id="the-question-of-interest" class="slide level2 center">
+<h2>The question of interest</h2>
+<p>What effect does tPA have on all cause mortality?</p>
+<p>Is the effect the same in everyone? Is it the same in the whole population?</p>
+</section>
+<section id="approaches-to-finding-an-answer" class="slide level2">
+<h2>Approaches to finding an answer</h2>
+
+<img data-src="tables/research_types.png" class="r-stretch"><div class="footer">
+<p>Hernán et al.&nbsp;(2019) A Second Chance to Get Causal Inference Right <em>Chance</em></p>
+</div>
+</section>
+<section id="learning-about-causes-of-effects" class="slide level2">
+<h2>Learning about causes of effects</h2>
+<ul>
+<li><p>if we gave a person tPA and observed their outcome</p></li>
+<li><p>if instead we witheld tPA and observed the outcome</p></li>
+</ul>
+<p>Would the outcomes be the same?</p>
+
+<img data-src="figures/rewind_time.png" class="r-stretch"></section>
+<section id="learning-about-causes-of-effects-1" class="slide level2">
+<h2>Learning about causes of effects</h2>
+<ul>
+<li><p>This is the idea behind counterfactuals</p></li>
+<li><p>If <span class="math inline">\(A\)</span> is treatment and <span class="math inline">\(i\)</span> indexes a person</p></li>
+<li><p><span class="math inline">\(Y\)</span> is the observed outcome and</p></li>
+<li><p><span class="math inline">\(Y^{A=a}\)</span> is the outcome had treatment <span class="math inline">\(A=a\)</span></p></li>
+<li><p>the comparisons of interest are <span class="math inline">\(Y_i^{A=\text{tPA}}-Y_i^{A=\text{no tPA}}\)</span> <span class="math inline">\(\forall i\)</span></p></li>
+<li><p>in words, would would the individual effect be had each patient <span class="math inline">\(i\)</span> recieved tPA versus not</p></li>
+</ul>
+</section>
+<section id="learning-about-causes-of-effects-2" class="slide level2">
+<h2>Learning about causes of effects</h2>
+<p>BUT</p>
+<ul>
+<li><p>we cannot learn about individual effects;</p>
+<ul>
+<li>we only have <span class="math inline">\(Y_i^{A=\text{tPA}}\)</span> OR <span class="math inline">\(Y_i^{A=\text{no tPA}}\)</span> for each <span class="math inline">\(i\)</span></li>
+</ul></li>
+<li><p>Thus we calculate <span class="math inline">\(\textrm{E}\left[Y_i^{A=\text{tPA}}-Y_i^{A=\text{no tPA}}\right]\)</span></p></li>
+<li><p>AKA the average treatment effect (ATE)</p></li>
+<li><p>The average effect had everyone gotten treatment, tPA, versus had everyone gotten no treatment, no tPA.</p></li>
+</ul>
+</section>
+<section id="learning-about-causes-of-effects-3" class="slide level2 center">
+<h2>Learning about causes of effects</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<p>One approach is to use a time machine</p>
+<div class="fragment fade-up">
+<p>But we know this is not feasible (currently)</p>
+</div>
+</div><div class="column" style="width:40%;">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/tardis.png"></p>
+<figcaption>Tardis</figcaption>
+</figure>
+</div>
+</div></div>
+</section>
+<section id="estimating-the-average-treatment-effect" class="slide level2">
+<h2>Estimating the Average Treatment Effect</h2>
+<p>Two ways to approach this:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 37%">
+<col style="width: 43%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Benefits</th>
+<th style="text-align: left;">Problems</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Randomized Trials</td>
+<td style="text-align: left;">Balanced groups in expectation</td>
+<td style="text-align: left;">Perhaps infeasible, non generalizable</td>
+</tr>
+<tr class="even">
+<td>Observational Studies</td>
+<td style="text-align: left;">Generalizable, potentially more feasible</td>
+<td style="text-align: left;">Confounding, <em>et al</em></td>
+</tr>
+</tbody>
+</table>
+<p>We will focus on Observational Studies here</p>
+</section>
+<section id="causal-identification-conditions" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">Causal Identification Conditions</h2>
+<div style="margin-top: 100px;">
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(1)}, Y^{(0)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+<p>Consistency: <span class="math inline">\(Y=Y^{a=1}A+Y^{a=0}(1-A)\)</span></p>
+<p>Positivity: <span class="math inline">\(P[A=a|L]&gt;0\)</span></p>
+</section>
+<section id="a-major-concern-of-non-randomized-studies" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">A major concern of non-randomized studies</h2>
+<div style="margin-top: 200px; font-size: 1em; color: red;">
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(1)}, Y^{(0)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+</section>
+<section id="confounders-are-a-major-concern" class="slide level2">
+<h2>Confounders are a major concern</h2>
+<p>Confounder: On a causal path to the outcome AND on a causal path to the exposure AND not caused by the the outcome or exposure.</p>
+
+<img data-src="figures/confounder.png" class="r-stretch"></section>
+<section id="methods-to-control-for-confounding" class="slide level2">
+<h2>Methods to control for confounding</h2>
+<ul>
+<li><p>Matching</p></li>
+<li><p>Restriction</p></li>
+<li><p>Regression Modeling</p></li>
+<li><p>Weighting</p></li>
+</ul>
+<div class="fragment fade-up">
+<p>These are all amenable to propensity methods</p>
+</div>
+<div class="fragment fade-up">
+<p>We will focus on weighting</p>
+</div>
+</section>
+<section id="propensity-score--definition" class="slide level2">
+<h2>Propensity Score- Definition</h2>
+<p>The propensity score is the probability of being in a treatment group conditional on covariates–it is the propensity to be treated</p>
+<p><span class="math display">\[P[A=a| \mathbf{L}]\]</span></p>
+<p>where <span class="math inline">\(A\)</span> is treatment level and <span class="math inline">\(\mathbf{L}\)</span> is a vector of covariates.</p>
+<p>We will denote propensity score as <span class="math inline">\(\pi(\mathbf{L})\)</span> for simplicity</p>
+</section>
+<section id="propensity-score--exhangeability" class="slide level2">
+<h2>Propensity score- Exhangeability</h2>
+<p>The propensity score is a balancing score<sup>1</sup>. If we have a set of <span class="math inline">\(\mathbf{L}\)</span> such that <span class="math inline">\(\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \mathbf{L}\)</span> then <span class="math display">\[\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \pi \left(\mathbf{L}\right)\]</span></p>
+<p>In other words, if <span class="math inline">\(\mathbf{L}\)</span> represents a vector that contains all variables necessary to achieve exchangeability then the propensity score can provide exchangeability.</p>
+<aside><ol class="aside-footnotes"><li id="fn1"><p>Cepeda <em>et el.</em> Comparison of Logistic Regression versus Propensity Score When the Number of Events Is Low and There Are Multiple Confounders. <em>AJE</em>. 2003</p></li></ol></aside></section>
 <section id="propensity-score-estimation" class="slide level2">
 <h2>Propensity Score Estimation</h2>
+<p>Typically use logistic regression to estimate.</p>
+<p><span class="math inline">\(\text{logit}\left[\widehat{\pi}\left(\mathbf{L}\right)\right]=\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)=\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\)</span></p>
+<p>and</p>
+<p><span class="math inline">\(\widehat{\pi}\left(\mathbf{L}\right)=\text{expit}\left[\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)\right]=\text{expit}\left[\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\right]\)</span></p>
+<p>where <span class="math inline">\(\text{logit}=\text{log}\left(\frac{P\left[A=a \mid \mathbf{L}\right]}{1-P\left[A=a \mid \mathbf{L}\right]}\right)\)</span> and <span class="math inline">\(\text{expit}=\left(\frac{1}{1+\exp^{\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)}} \right)\)</span> in R</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co">#model the logit of being in treatment</span></span>
+<span id="cb1-2"><a href=""></a>model<span class="ot">&lt;-</span><span class="fu">glm</span>(A<span class="sc">~</span>L, <span class="at">data=</span>df, <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link=</span><span class="st">'logit'</span>))</span>
+<span id="cb1-3"><a href=""></a></span>
+<span id="cb1-4"><a href=""></a><span class="co">#predict the probability of being in treatment based on covariates</span></span>
+<span id="cb1-5"><a href=""></a>prop_score<span class="ot">&lt;-</span><span class="fu">predict</span>(model, <span class="at">type=</span><span class="st">'response'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="model-building-and-variable-selection" class="slide level2">
+<h2>Model building and variable selection</h2>
+<p>Like all causal analysis, variable selection should be principled, guided by your estimand, and driven by your DAG</p>
+<ol type="1">
+<li><p>Identify Variables in your DAG that you believe may be confounders.<sup>1</sup></p></li>
+<li><p>Exclude variables that are</p></li>
+</ol>
+<ol type="a">
+<li>mediators of your effect of interest</li>
+<li>instruments of your exposure</li>
+</ol>
+<aside><ol class="aside-footnotes"><li id="fn2"><p>Brookhart <em>et al.</em> Variable Selection for Propensity Score Models. <em>AJE</em> 2006</p></li></ol></aside></section>
+<section id="dag" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">DAG</h2>
+
+<img data-src="figures/daggity.png" class="r-stretch"></section>
+<section id="dag-1" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">DAG</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Medical Hx</th>
+<th>Sx and Signs</th>
+<th>Demographics</th>
+<th>Admission</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cardiac Illness Hx</td>
+<td>Paresis</td>
+<td>Age</td>
+<td>Transport Type</td>
+</tr>
+<tr class="even">
+<td>HTN</td>
+<td>Aphasia</td>
+<td>Gender</td>
+<td>Time To admission</td>
+</tr>
+<tr class="odd">
+<td>AFib</td>
+<td>Consciousness</td>
+<td>Admission Location</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Diabetes</td>
+<td>Rankin Scale</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="dag-2" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">DAG</h2>
+
+<img data-src="figures/dag.png" class="r-stretch"></section>
+<section id="advantages" class="slide level2">
+<h2>Advantages</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<ul>
+<li><p>Collapses predictors of treatment into a single value.</p>
+<ul>
+<li>avoid curse of dimensionality.<sup>1</sup></li>
+</ul></li>
+<li><p>Relatively easy to estimate.</p></li>
+<li><p>Multiple uses.</p></li>
+</ul>
+</div><div class="column" style="width:60%;">
+<p><img data-src="figures/prop_score.png"></p>
+</div></div>
+<aside><ol class="aside-footnotes"><li id="fn3"><p>Cepeda <em>et el.</em> Comparison of Logistic Regression versus Propensity Score When the Number of Events Is Low and There Are Multiple Confounders. <em>AJE</em>. 2003</p></li></ol></aside></section>
+<section id="disadvantages" class="slide level2">
+<h2>Disadvantages</h2>
+<ul>
+<li><p>Still rely on the assumption that you have all variables necessary to achieve exchangeability.</p>
+<ul>
+<li><strong>There is no magic here, this is not an RCT</strong></li>
+</ul></li>
+<li><p>People with same propensity score may have different distribution of covariates.</p></li>
+<li><p>Adds and extra step to estimation.</p></li>
+<li><p>Estimation of standard error may be more complex.</p></li>
+</ul>
 </section>
 <section id="propensity-score-diagnostics" class="slide level2">
 <h2>Propensity Score Diagnostics</h2>
-</section>
-<section id="applications-with-propensity-scores" class="slide level2">
-<h2>Applications with Propensity Scores</h2>
+<p>-Distribution of scores</p>
+<p>-Overlap</p>
+<p>-Trimming?</p>
+<p>-Truncation?</p>
 </section>
 <section id="stabilized-versus-unstabilized" class="slide level2">
 <h2>Stabilized Versus Unstabilized</h2>
@@ -156,12 +639,48 @@ Timothy Feeney
 <section id="standard-error-estimation" class="slide level2">
 <h2>Standard Error Estimation</h2>
 <h3 id="m-estimation">M-Estimation</h3>
+<!-- Starts 1pm
+1-1:10 intros and overview of course
+1:10-1:20 Introduction to clinical problem and the data we are using; TK
+-Can introduce our DAG here TK?
+1:20-1:40: First Activity
+    Reading in data
+    Make a table 1 with data (we need to have table 1 to compare to)
+    Crude /multivariable analysis (comparison estimates for crude and multivariable analysis)
+1:40-2:40p: Didactic Material TK, TF
+    Overview of causal
+Talk ATE
+    Overview of propensity scores
+        Theory
+        Advantages
+        Disadvantages
+        Model building and variable selection
+            -Can use a DAG to guide
+        Diagnostics
+            -Weight means, SMDs, distributions
+            -Solutions if deviations, trimming/truncation
+            -code
+            -model output
+    Introduce and discuss the ATT
+    Compare and contrast ATE
+2:40-3:10p Second Activity: Estimation of the ATE and ATT using IPTW
+3:10-3:30p: Break
+3:30-4:10p Didactic Material TF
+    How to make inference with these 
+    Standard Error estimation with Bootstrap (how it works, positives and negatives)
+    M-Estimation
+4:10-4:50p Third Activity:
+    We go through the ATE bootstrap and M-Estimation
+    They modify the ATE bootstrap and M-Estimation for the ATT
+    Simulation for coverage
+4:50-5p Questions and Goodbyes -->
 
-</section>
+</section></section>
+
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-
+<p><strong><em>SER 2025 Propensity Score Workshop, June 9th 2025</em></strong></p>
 </div>
 </div></div>
 
@@ -172,6 +691,7 @@ Timothy Feeney
   <script src="TF_Presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -193,7 +713,8 @@ Timothy Feeney
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -214,7 +735,7 @@ Timothy Feeney
         progress: true,
 
         // Display the page number of the current slide
-        slideNumber: false,
+        slideNumber: 'c/t',
 
         // 'all', 'print', or 'speaker'
         showSlideNumber: 'all',
@@ -319,14 +840,14 @@ Timothy Feeney
         previewLinks: false,
 
         // Transition style (none/fade/slide/convex/concave/zoom)
-        transition: 'none',
+        transition: 'slide',
 
         // Transition speed (default/fast/slow)
-        transitionSpeed: 'default',
+        transitionSpeed: 'slow',
 
         // Transition style for full page slide backgrounds
         // (none/fade/slide/convex/concave/zoom)
-        backgroundTransition: 'none',
+        backgroundTransition: 'fade',
 
         // Number of slides away from the current that are visible
         viewDistance: 3,
@@ -364,7 +885,7 @@ Timothy Feeney
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
 
           RevealMath,
           RevealNotes,
