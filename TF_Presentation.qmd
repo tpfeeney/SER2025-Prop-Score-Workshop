@@ -1,19 +1,24 @@
 ---
 title: "Propensity Score Workshop"
 author: "Timothy Feeney, Catie Wiener, Tobias Kurth"
-format: 
+execute:
+  echo: true
+  eval: true
+  output: true
+
+format:
   revealjs:
     transition: slide
     background-transition: fade
     transition-speed: slow
     slide-number: true
-    chalkboard: 
-      buttons: true   
-    footer: '***SER 2025 Propensity Score Workshop, June 9th 2025***'
+    footer: "***SER 2025 Propensity Score Workshop, June 9th 2025***"
+
 toc: true
 toc-depth: 1
   
 ---
+
 # Preliminaries
 
 ## Teaching Team Introductions
@@ -120,37 +125,7 @@ Westphalian Stroke Registry
 
 ## FIRST ACTIVITY {.center}
 
-[]: this will allow system time to be displayed in real time for presentation purposes
-### 🕒 Current Time:
-<div id="clock" style="font-size: 1.5em; margin-bottom: 1em;"></div>
-
-### ⏱ Timer (since slide loaded):
-<div id="timer" style="font-size: 1.5em;"></div>
-
-<script>
-  // Real-time system clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').innerText = 
-      now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-  }
-
-  setInterval(updateClock, 1000);
-  updateClock(); // initial call
-
-  // Count-up timer
-  const startTime = Date.now();
-
-  function updateTimer() {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
-    const secs = String(elapsed % 60).padStart(2, '0');
-    document.getElementById('timer').innerText = `${mins}:${secs}`;
-  }
-
-  setInterval(updateTimer, 1000);
-  updateTimer(); // initial call
-</script>
+### Descriptive Statistics
 
 # What are we aiming to do here?
 
@@ -291,7 +266,39 @@ $$\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \pi \left(\mathbf{L}\right)$$
 
 In other words, if $\mathbf{L}$ represents a vector that contains all variables necessary to achieve exchangeability then the propensity score can provide exchangeability.
 
+How do we determine what should be in  $\mathbf{L}$?
+
 [^1]: Rosenbaum and Rubin. *Biometrika* 1983
+
+## Model building and variable selection
+
+Like all causal analysis, variable selection should be principled, guided by your estimand, and driven by your DAG
+
+1) Identify Variables in your DAG that you believe may be confounders.[^2]
+
+2) Exclude variables that are 
+  a) mediators of your effect of interest
+  b) instruments of your exposure 
+
+[^2]: Brookhart *et al.* Variable Selection for Propensity Score Models. *AJE* 2006
+
+## DAG {auto-animate=true}
+
+| Medical Hx | Sx and Signs | Demographics | Admission |
+|-----------------|-----------------|-----------------|-----------------|
+| Cardiac Illness Hx    | Paresis    | Age  | Transport Type |
+| HTN                   | Aphasia| Gender   | Time To admission |
+| AFib                  | Consciousness    | Admission Location   |
+| Diabetes              | Rankin Scale   |  |
+
+## DAG {auto-animate=true}
+
+![](figures/daggity.png){.absolute width="800" left=150}
+
+## DAG {auto-animate=true}
+
+![](figures/dag.png)
+
 
 ## Propensity Score Estimation
 
@@ -314,34 +321,6 @@ model<-glm(A~L, data=df, family=binomial(link='logit'))
 prop_score<-predict(model, type='response')
 ```
 
-## Model building and variable selection
-
-Like all causal analysis, variable selection should be principled, guided by your estimand, and driven by your DAG
-
-1) Identify Variables in your DAG that you believe may be confounders.[^2]
-
-2) Exclude variables that are 
-  a) mediators of your effect of interest
-  b) instruments of your exposure 
-
-[^2]: Brookhart *et al.* Variable Selection for Propensity Score Models. *AJE* 2006
-
-## DAG {auto-animate=true}
-
-![](figures/daggity.png)
-
-## DAG {auto-animate=true}
-
-| Medical Hx | Sx and Signs | Demographics | Admission |
-|-----------------|-----------------|-----------------|-----------------|
-| Cardiac Illness Hx    | Paresis    | Age  | Transport Type |
-| HTN                   | Aphasia| Gender   | Time To admission |
-| AFib                  | Consciousness    | Admission Location   |
-| Diabetes              | Rankin Scale   |  |
-
-## DAG {auto-animate=true}
-
-![](figures/dag.png)
 
 ## Advantages
 
@@ -381,6 +360,9 @@ Like all causal analysis, variable selection should be principled, guided by you
 
 ## Propensity Score Diagnostics
 
+::::{.columns}
+
+:::{.column width="30%"}
 -Distribution of scores
 
 -Overlap
@@ -388,8 +370,421 @@ Like all causal analysis, variable selection should be principled, guided by you
 -Trimming?
 
 -Truncation?
+:::
+
+:::{.column width="70%"}
+![](/figures/score_dist.png)
+:::
+::::
+
+::: aside
+ Kurth *et al.* AJE 2006
+:::
+
+## Inverse Probability of Treatment Weights
+
+- In Epidemiology we are often interested in marginal estimates of effect
+
+- To achieve this we often use Inverse Probability of Treatment weights (IPTW)
+
+$$\text{IPTW}=W_{IPTW}=\left(f(A\mid\mathbf{L})\right)^{-1}=\frac{1}{P[A\mid\mathbf{L}]}$$
+
+
+## How IPTW works
+
+![](/figures/datatable.png){.absolute width="200" left=0}
+
+![](/figures/tree1.png){.absolute width="350" right=500 top=50}
+
+![](/figures/tree2.png){.absolute width="500" right=5 bottom=0}
+
+::: aside
+Hernan and Robins. *What if* 2020
+:::
+
+## How IPTW works
+
+::::{.columns}
+:::{.column width="30%"}
+**Before**
+<div style="width: 70%; font-size: 0.8em;">
+|       |$A=1$|$A=0$| |
+|:-----|:---|:----|:---|
+| $L=0$| 4    |4    ||
+| $L=1$| 9    |3    ||
+| Total| 13   |7    |20|
+</div>
+:::
+
+::: {.column width="70%"}
+
+:::
+::::
+
+![](figures/confounder.png){.absolute width=1000 right=50 bottom=5}
+
+
+## How IPTW works
+
+::::{.columns}
+:::{.column width="30%"}
+**Before**
+<div style="width: 70%; font-size: 0.8em;">
+|       |$A=1$|$A=0$| |
+|:------|:------|:-----|:---|
+| $L=0$| 4    |4    ||
+| $L=1$| 9    |3    ||
+| Total| 13   |7    |20|
+</div>
+
+:::
+
+:::{.column width="20%"}
+
+::::
+
+::: {.column width="30%"}
+**After**
+<div style="width: 70%; font-size: 0.8em;">
+
+
+|       |$A=1$|$A=0$| |
+|:------|:-----|:---|:---|
+| $L=0$| 8    |8    ||
+| $L=1$| 12   |12    ||
+| Total| 20   |20    |40|
+</div>
+:::
+::::
+![](figures/confounder_iptw.png){.absolute width=1000 right=50 bottom=5}
 
 ## Stabilized Versus Unstabilized
+
+$$\widehat{\mathrm{W}}_{US,i}=\frac{1}{f(A|\mathbf{L})}=\frac{1}{P[A|\mathbf{L}]}$$
+
+Unstabilized weights are scaled by the probability of treatment.
+
+$$\widehat{\mathrm{W}}_{S,i}=\frac{f(A)}{f(A|)\mathbf{L}}=\frac{P[A]}{P[A|\mathbf{L}]}$$
+
+
+## Stabilized Versus Unstabilized
+
+![](/figures/tree2.png){.absolute width="530" left=0 top=150}
+
+![](/figures/tree3.png){.absolute width="530" right=0 top=150}
+
+::: aside
+Hernan and Robins *What if* 2020
+:::
+
+
+## Example ATE estimation
+
+What is the ATE of quitting smoking versus not on weight change between 1971 and 1982?
+
+We can use the example data from Hernan and Robins
+
+Treatment of interest: Quitting smoking (qsmk)
+Confounders: Sex, Age, Race
+
+```{r}
+require(causaldata)
+require(dplyr)
+ex<-causaldata::nhefs %>% select(wt82_71, qsmk, age, race, sex) %>% head()
+ex
+```
+
+## Example ATE, Horvitz Thompson Estimator
+
+$$\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_iA_i-\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_i(1-A_i) $$
+
+
+```{r}
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==1, predict(trt_model, type="response"),
+ 1-predict(trt_model, type="response"))
+# Estimate unstabilized IPTW
+nhefs$w<-1/nhefs$prop_score
+```
+
+```{r}
+#| echo: FALSE
+nhefs %>% select(wt82_71, qsmk, age, race, sex, prop_score, w) %>% head(n=4)
+```
+## Example ATE, Horvitz Thompson Estimator
+
+$$\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_iA_i-\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_i(1-A_i) $$
+
+```{r}
+#| echo: FALSE
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==1, predict(trt_model, type="response"),
+ 1-predict(trt_model, type="response"))
+# Estimate unstabilized IPTW
+nhefs$w<-1/nhefs$prop_score
+```
+
+```{r}
+nhefs$treat<-nhefs$w*nhefs$wt82_71*nhefs$qsmk
+nhefs$untrt<-nhefs$w*nhefs$wt82_71*(1-nhefs$qsmk)
+ate<-mean(nhefs$treat, na.rm=T)-mean(nhefs$untrt, na.rm=T)
+ate
+```
+
+## Example ATE, Hajek Estimator
+
+We may instead want to use regression using least squares
+
+If instead of minimizing 
+
+$$\sum_i \left[Y_i-(\alpha_0 + \alpha_1 A)\right]^2$$
+
+we minimze $$\sum_i \widehat{\mathrm{W}}\left[Y_i-(\alpha_0 + \alpha_1 A)\right]^2$$
+
+then we obtain the hajek estimator
+
+$$\widehat{\alpha}_1=\frac{\sum_i \widehat{W}_i Y_i A_i}{\sum_i \widehat{W}_i A_i}-\frac{\sum_i \widehat{W}_i Y_i\left(1-A_i\right)}{\sum_i \widehat{W}_i\left(1-A_i\right)} $$
+
+
+## Example ATE, Hajek Estimator
+
+$$\frac{\sum_i \widehat{W}_i Y_i A_i}{\sum_i \widehat{W}_i A_i}-\frac{\sum_i \widehat{W}_i Y_i\left(1-A_i\right)}{\sum_i \widehat{W}_i\left(1-A_i\right)} $$
+
+```{r}
+#| echo: FALSE
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==1, predict(trt_model, type="response"),
+ 1-predict(trt_model, type="response"))
+# Estimate unstabilized IPTW
+nhefs$w<-1/nhefs$prop_score
+nhefs$treat<-nhefs$w*nhefs$wt82_71*nhefs$qsmk
+nhefs$untrt<-nhefs$w*nhefs$wt82_71*(1-nhefs$qsmk)
+ate<-mean(nhefs$treat, na.rm=T)-mean(nhefs$untrt, na.rm=T)
+```
+
+```{r}
+# weighting the regression model
+Y_model<-lm(wt82_71~qsmk, weights=w, data=nhefs)
+# regression based ATE
+Y_model$coefficients[2]
+# Horvitz Thompson ATE
+ate
+```
+
+
+## Advantages of IPTW
+
+- Can be used in many scenarios to obatin marginal estimates
+  - Average Treatment Effect [^4] -We saw this
+  - Average Treatment Effect among Treated (ATT) [^5] -next
+  - Average Treatment Effect among Untreated (ATU) -next
+  - Used in Survival Analysis [^6] -not covered today
+
+- Uses all the data
+
+  [^4]: Hernan *et al.* What if 2020
+  [^5]: Sato and Matsuyama *Epidemiology* 2003
+  [^6]: Cole and Hernan *Comp Meth and Prog in Biomed* 2004
+
+## The question of interest {.center}
+
+What effect does tPA have on all cause mortality?
+
+::: {.fragment .fade-up}
+Is the ATE what we are interested in?
+
+Do we expect that everyone coming into an ED would benefit from tPA?
+:::
+
+::: {.fragment .fade-up}
+What if were were interested in the effect of giving everyone treatment versus not *only* in the treated?
+:::
+
+::: {.fragment .fade-up}
+What if were were interested in the effect of giving everyone treatment versus not *only* in the untreated?
+:::
+
+## ATT
+
+Average Effect among those that were treated.
+
+ATT also known as the Standardized Mortality Ratio (SMR)[^8]
+
+[^]7: Sato and Matsuyama *Epidemiology* 2003
+
+## Estimating IPTW for the ATT {auto-animate=true}
+
+Under a slightly different set of identification conditions:
+
+Consistency: $Y=Y^{a=1}A+Y^{a=0}(1-A)$
+
+
+
+::: {style="margin-top: 100px;"}
+Positivity: $P[A=a|\mathbf{L}]>0 \ \forall \ l$ where $f(l|A=1)>0$ 
+
+Conditional Exchangeability: $Y^{(0)}\perp\!\!\!\perp A| L$
+:::
+
+## Estimating IPTW for the ATT {auto-animate=true}
+
+::: {style="margin-top: 200px; font-size: 1em; color: red;"}
+Positivity: $P[A=a|\mathbf{L}]>0 \ \forall \ l$ where $f(l|A=1)>0$ 
+
+
+Conditional Exchangeability: $Y^{(0)}\perp\!\!\!\perp A| L$
+:::
+
+## Estimating IPTW for the ATT
+
+New weights to make the untreated look like the treated, thereby standing in for them.
+
+$$
+\widehat{W}_i= 
+\begin{cases}
+    A=1,&    1 \\
+    A=0,& \frac{\widehat{\pi}(\mathbf{L})}{1-\widehat{\pi}(\mathbf{L})}
+\end{cases}
+$$
+
+```{.r code-line-numbers='7-8'}
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==1, 1,
+ predict(trt_model, type="response")/(1-predict(trt_model, type="response")))
+ nhefs$w_att<-1/nhefs$prop_score
+```
+
+
+```{r}
+#| echo: FALSE
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==1, 1,
+ predict(trt_model, type="response")/(1-predict(trt_model, type="response")))
+ nhefs$w_att<-1/nhefs$prop_score
+```
+
+```{r}
+#| echo: FALSE
+# weighting the regression model
+Y_model<-lm(wt82_71~qsmk, weights=w_att, data=nhefs)
+# regression based ATT
+att<-Y_model$coefficients[2]
+paste0("The estimated ATT is: ", round(att,2))
+```
+
+## ATU
+
+Average Effect among those that were untreated.
+
+ATT also known as the Standardized Risk/Rate Ratio (SMR)[^8]
+
+[^8]: Sato and Matsuyama *Epidemiology* 2003
+
+## Estimating IPTW for the ATU {auto-animate=true}
+
+Under a slightly different set of identification conditions:
+
+Consistency: $Y=Y^{a=1}A+Y^{a=0}(1-A)$
+
+
+
+::: {style="margin-top: 100px;"}
+Positivity: $P[A=a|\mathbf{L}]>0 \ \forall \ l$ where $f(l|A=0)>0$ 
+
+Conditional Exchangeability: $Y^{(1)}\perp\!\!\!\perp A| L$
+:::
+
+## Estimating IPTW for the ATT {auto-animate=true}
+
+::: {style="margin-top: 200px; font-size: 1em; color: red;"}
+Positivity: $P[A=a|\mathbf{L}]>0 \ \forall \ l$ where $f(l|A=0)>0$ 
+
+
+Conditional Exchangeability: $Y^{(1)}\perp\!\!\!\perp A| L$
+:::
+
+## Estimating IPTW for the ATT
+
+New weights to make the treated look like the untreated, thereby standing in for them.
+
+$$
+\widehat{W}_i= 
+\begin{cases}
+    A=1,&    \frac{1-\widehat{\pi}(\mathbf{L})}{\widehat{\pi}(\mathbf{L})} \\
+    A=0,& 1
+\end{cases}
+$$
+
+```{.r code-line-numbers='7-8'}
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==0, 1,
+ (1-predict(trt_model, type="response"))/predict(trt_model, type="response"))
+ nhefs$w_atu<-1/nhefs$prop_score
+```
+
+
+```{r}
+#| echo: FALSE
+require(dplyr)
+nhefs<-causaldata::nhefs
+# Model treatment
+trt_model<-glm(qsmk ~ as.factor(sex) + as.factor(race) + age + I(age^2), data=nhefs, 
+                  family=binomial())
+# Estimate propensity score
+nhefs$prop_score<-ifelse(nhefs$qsmk==0, 1,
+ (1-predict(trt_model, type="response"))/predict(trt_model, type="response"))
+ nhefs$w_atu<-1/nhefs$prop_score
+```
+
+```{r}
+#| echo: FALSE
+# weighting the regression model
+Y_model<-lm(wt82_71~qsmk, weights=w_atu, data=nhefs)
+# regression based ATT
+atu<-Y_model$coefficients[2]
+paste0("The estimated ATT is: ", round(atu,2))
+```
+
+
+
+## SECOND ACTIVITY {.center}
+
+Estimate the ATE, ATT, and ATU using IPTW in the tPA data
+
+1) Explain in words what each estimand means in this context, and which you think has meaning
+
+2) Estimate the ATE, ATT, and ATU in the data.
+
 
 ## Standard Error Estimation-Bootstrapping
 

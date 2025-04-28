@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1745268838.73681 "/Users/thefeeney/Projects/SER2025_Prop_Score_Workshop/SER2025_Prop_score/figures/confounder.tex" "confounder.pdf" "confounder" 1745268839.2066 0
-  "/Users/thefeeney/Projects/SER2025_Prop_Score_Workshop/SER2025_Prop_score/figures/confounder.tex" 1745268838.61858 1205 f810158b075807bdd142ea35ba41b84f ""
+["pdflatex"] 1745268855.44927 "/Users/thefeeney/Projects/SER2025_Prop_Score_Workshop/SER2025_Prop_score/figures/confounder_iptw.tex" "confounder_iptw.pdf" "confounder_iptw" 1745268855.89547 0
+  "/Users/thefeeney/Projects/SER2025_Prop_Score_Workshop/SER2025_Prop_score/figures/confounder_iptw.tex" 1745268855.27144 1206 f7f57c2c65669155f389652abffc9ae1 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm" 1136768653 1328 c834bbb027764024c09d3d2bf908b5f0 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb" 1248133631 34811 78b52f49e893bcba91bd7581cdc144c0 ""
@@ -125,10 +125,10 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1742849111 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "confounder.aux" 1745268839.17719 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
-  "confounder.tex" 1745268838.61858 1205 f810158b075807bdd142ea35ba41b84f ""
+  "confounder_iptw.aux" 1745268855.86559 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "confounder_iptw.tex" 1745268855.27144 1206 f7f57c2c65669155f389652abffc9ae1 ""
   (generated)
-  "confounder.aux"
-  "confounder.log"
-  "confounder.pdf"
+  "confounder_iptw.aux"
+  "confounder_iptw.log"
+  "confounder_iptw.pdf"
   (rewritten before read)

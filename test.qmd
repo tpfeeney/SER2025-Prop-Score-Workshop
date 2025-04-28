@@ -1,0 +1,26 @@
+---
+title: "Propensity Score Workshop"
+author: "Timothy Feeney, Catie Wiener, Tobias Kurth"
+execute:
+  echo: true
+  eval: true
+  output: true
+
+format:
+  revealjs:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    slide-number: true
+    footer: "***SER 2025 Propensity Score Workshop, June 9th 2025***"
+
+toc: true
+toc-depth: 1
+  
+---
+
+## Test slide
+
+```{.r}
+1 + 1
+```

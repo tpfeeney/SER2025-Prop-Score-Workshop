@@ -98,8 +98,6 @@
   <link href="TF_Presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
-  <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
-  <link href="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
   <link href="TF_Presentation_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
   <style type="text/css">
     .reveal div.sourceCode {
@@ -340,38 +338,7 @@ Timothy Feeney, Catie Wiener, Tobias Kurth
 </section>
 <section id="first-activity" class="slide level2 center">
 <h2>FIRST ACTIVITY</h2>
-<h3 id="current-time">🕒 Current Time:</h3>
-<div id="clock" style="font-size: 1.5em; margin-bottom: 1em;">
-
-</div>
-<h3 id="timer-since-slide-loaded">⏱ Timer (since slide loaded):</h3>
-<div id="timer" style="font-size: 1.5em;">
-
-</div>
-<script>
-  // Real-time system clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').innerText = 
-      now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-  }
-
-  setInterval(updateClock, 1000);
-  updateClock(); // initial call
-
-  // Count-up timer
-  const startTime = Date.now();
-
-  function updateTimer() {
-    const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
-    const secs = String(elapsed % 60).padStart(2, '0');
-    document.getElementById('timer').innerText = `${mins}:${secs}`;
-  }
-
-  setInterval(updateTimer, 1000);
-  updateTimer(); // initial call
-</script>
+<h3 id="descriptive-statistics">Descriptive Statistics</h3>
 </section></section>
 <section>
 <section id="what-are-we-aiming-to-do-here" class="title-slide slide level1 center">
@@ -516,20 +483,8 @@ Timothy Feeney, Catie Wiener, Tobias Kurth
 <h2>Propensity score- Exhangeability</h2>
 <p>The propensity score is a balancing score<sup>1</sup>. If we have a set of <span class="math inline">\(\mathbf{L}\)</span> such that <span class="math inline">\(\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \mathbf{L}\)</span> then <span class="math display">\[\left(Y^{0},Y^{1}\right)\perp\!\!\!\perp A \mid \pi \left(\mathbf{L}\right)\]</span></p>
 <p>In other words, if <span class="math inline">\(\mathbf{L}\)</span> represents a vector that contains all variables necessary to achieve exchangeability then the propensity score can provide exchangeability.</p>
+<p>How do we determine what should be in <span class="math inline">\(\mathbf{L}\)</span>?</p>
 <aside><ol class="aside-footnotes"><li id="fn1"><p>Cepeda <em>et el.</em> Comparison of Logistic Regression versus Propensity Score When the Number of Events Is Low and There Are Multiple Confounders. <em>AJE</em>. 2003</p></li></ol></aside></section>
-<section id="propensity-score-estimation" class="slide level2">
-<h2>Propensity Score Estimation</h2>
-<p>Typically use logistic regression to estimate.</p>
-<p><span class="math inline">\(\text{logit}\left[\widehat{\pi}\left(\mathbf{L}\right)\right]=\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)=\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\)</span></p>
-<p>and</p>
-<p><span class="math inline">\(\widehat{\pi}\left(\mathbf{L}\right)=\text{expit}\left[\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)\right]=\text{expit}\left[\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\right]\)</span></p>
-<p>where <span class="math inline">\(\text{logit}=\text{log}\left(\frac{P\left[A=a \mid \mathbf{L}\right]}{1-P\left[A=a \mid \mathbf{L}\right]}\right)\)</span> and <span class="math inline">\(\text{expit}=\left(\frac{1}{1+\exp^{\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)}} \right)\)</span> in R</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co">#model the logit of being in treatment</span></span>
-<span id="cb1-2"><a href=""></a>model<span class="ot">&lt;-</span><span class="fu">glm</span>(A<span class="sc">~</span>L, <span class="at">data=</span>df, <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link=</span><span class="st">'logit'</span>))</span>
-<span id="cb1-3"><a href=""></a></span>
-<span id="cb1-4"><a href=""></a><span class="co">#predict the probability of being in treatment based on covariates</span></span>
-<span id="cb1-5"><a href=""></a>prop_score<span class="ot">&lt;-</span><span class="fu">predict</span>(model, <span class="at">type=</span><span class="st">'response'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
 <section id="model-building-and-variable-selection" class="slide level2">
 <h2>Model building and variable selection</h2>
 <p>Like all causal analysis, variable selection should be principled, guided by your estimand, and driven by your DAG</p>
@@ -543,10 +498,6 @@ Timothy Feeney, Catie Wiener, Tobias Kurth
 </ol>
 <aside><ol class="aside-footnotes"><li id="fn2"><p>Brookhart <em>et al.</em> Variable Selection for Propensity Score Models. <em>AJE</em> 2006</p></li></ol></aside></section>
 <section id="dag" class="slide level2" data-auto-animate="true">
-<h2 data-id="quarto-animate-title">DAG</h2>
-
-<img data-src="figures/daggity.png" class="r-stretch"></section>
-<section id="dag-1" class="slide level2" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">DAG</h2>
 <table class="caption-top">
 <colgroup>
@@ -591,10 +542,27 @@ Timothy Feeney, Catie Wiener, Tobias Kurth
 </tbody>
 </table>
 </section>
+<section id="dag-1" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">DAG</h2>
+<p><img data-src="figures/daggity.png" class="absolute" style="left: 150px; width: 800px; "></p>
+</section>
 <section id="dag-2" class="slide level2" data-auto-animate="true">
 <h2 data-id="quarto-animate-title">DAG</h2>
 
 <img data-src="figures/dag.png" class="r-stretch"></section>
+<section id="propensity-score-estimation" class="slide level2">
+<h2>Propensity Score Estimation</h2>
+<p>Typically use logistic regression to estimate.</p>
+<p><span class="math inline">\(\text{logit}\left[\widehat{\pi}\left(\mathbf{L}\right)\right]=\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)=\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\)</span></p>
+<p>and</p>
+<p><span class="math inline">\(\widehat{\pi}\left(\mathbf{L}\right)=\text{expit}\left[\text{logit}\left(P\left[A=a \mid \mathbf{L}\right]\right)\right]=\text{expit}\left[\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)\right]\)</span></p>
+<p>where <span class="math inline">\(\text{logit}=\text{log}\left(\frac{P\left[A=a \mid \mathbf{L}\right]}{1-P\left[A=a \mid \mathbf{L}\right]}\right)\)</span> and <span class="math inline">\(\text{expit}=\left(\frac{1}{1+\exp^{\alpha_0+\boldsymbol{\alpha}^T\pi\left(\mathbf{L}\right)}} \right)\)</span> in R</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co">#model the logit of being in treatment</span></span>
+<span id="cb1-2"><a href=""></a>model<span class="ot">&lt;-</span><span class="fu">glm</span>(A<span class="sc">~</span>L, <span class="at">data=</span>df, <span class="at">family=</span><span class="fu">binomial</span>(<span class="at">link=</span><span class="st">'logit'</span>))</span>
+<span id="cb1-3"><a href=""></a></span>
+<span id="cb1-4"><a href=""></a><span class="co">#predict the probability of being in treatment based on covariates</span></span>
+<span id="cb1-5"><a href=""></a>prop_score<span class="ot">&lt;-</span><span class="fu">predict</span>(model, <span class="at">type=</span><span class="st">'response'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 <section id="advantages" class="slide level2">
 <h2>Advantages</h2>
 <div class="columns">
@@ -625,13 +593,386 @@ Timothy Feeney, Catie Wiener, Tobias Kurth
 </section>
 <section id="propensity-score-diagnostics" class="slide level2">
 <h2>Propensity Score Diagnostics</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
 <p>-Distribution of scores</p>
 <p>-Overlap</p>
 <p>-Trimming?</p>
 <p>-Truncation?</p>
+</div><div class="column" style="width:70%;">
+<p><img data-src="./figures/score_dist.png"></p>
+</div></div>
+
+<aside><div>
+<p>Kurth <em>et al.</em> AJE 2006</p>
+</div></aside></section>
+<section id="inverse-probability-of-treatment-weights" class="slide level2">
+<h2>Inverse Probability of Treatment Weights</h2>
+<ul>
+<li><p>In Epidemiology we are often interested in marginal estimates of effect</p></li>
+<li><p>To achieve this we often use Inverse Probability of Treatment weights (IPTW)</p></li>
+</ul>
+<p><span class="math display">\[\text{IPTW}=W_{IPTW}=\left(f(A\mid\mathbf{L})\right)^{-1}=\frac{1}{P[A\mid\mathbf{L}]}\]</span></p>
+</section>
+<section id="how-iptw-works" class="slide level2">
+<h2>How IPTW works</h2>
+<p><img data-src="./figures/datatable.png" class="absolute" style="left: 0px; width: 200px; "></p>
+<p><img data-src="./figures/tree1.png" class="absolute" style="top: 50px; right: 500px; width: 350px; "></p>
+<p><img data-src="./figures/tree2.png" class="absolute" style="bottom: 0px; right: 5px; width: 500px; "></p>
+
+<aside><div>
+<p>Hernan and Robins. <em>What if</em> 2020</p>
+</div></aside></section>
+<section id="how-iptw-works-1" class="slide level2">
+<h2>How IPTW works</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<strong>Before</strong>
+<div style="width: 70%; font-size: 0.8em;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><span class="math inline">\(A=1\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(A=0\)</span></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(L=0\)</span></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(L=1\)</span></td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">20</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div><div class="column" style="width:70%;">
+
+</div></div>
+<p><img data-src="figures/confounder.png" class="absolute" style="bottom: 5px; right: 50px; width: 1000px; "></p>
+</section>
+<section id="how-iptw-works-2" class="slide level2">
+<h2>How IPTW works</h2>
+<div class="columns">
+<div class="column" style="width:30%;">
+<strong>Before</strong>
+<div style="width: 70%; font-size: 0.8em;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><span class="math inline">\(A=1\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(A=0\)</span></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(L=0\)</span></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(L=1\)</span></td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">20</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div><div class="column" style="width:20%;">
+
+</div><div class="column" style="width:30%;">
+<strong>After</strong>
+<div style="width: 70%; font-size: 0.8em;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;"><span class="math inline">\(A=1\)</span></th>
+<th style="text-align: left;"><span class="math inline">\(A=0\)</span></th>
+<th style="text-align: left;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(L=0\)</span></td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(L=1\)</span></td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Total</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">40</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<p><img data-src="figures/confounder_iptw.png" class="absolute" style="bottom: 5px; right: 50px; width: 1000px; "></p>
 </section>
 <section id="stabilized-versus-unstabilized" class="slide level2">
 <h2>Stabilized Versus Unstabilized</h2>
+<p><span class="math display">\[\widehat{\mathrm{W}}_{US,i}=\frac{1}{f(A|\mathbf{L})}=\frac{1}{P[A|\mathbf{L}]}\]</span></p>
+<p>Unstabilized weights are scaled by the probability of treatment.</p>
+<p><span class="math display">\[\widehat{\mathrm{W}}_{S,i}=\frac{f(A)}{f(A|)\mathbf{L}}=\frac{P[A]}{P[A|\mathbf{L}]}\]</span></p>
+</section>
+<section id="stabilized-versus-unstabilized-1" class="slide level2">
+<h2>Stabilized Versus Unstabilized</h2>
+<p><img data-src="./figures/tree2.png" class="absolute" style="top: 150px; left: 0px; width: 530px; "></p>
+<p><img data-src="./figures/tree3.png" class="absolute" style="top: 150px; right: 0px; width: 530px; "></p>
+
+<aside><div>
+<p>Hernan and Robins <em>What if</em> 2020</p>
+</div></aside></section>
+<section id="example-ate-estimation" class="slide level2">
+<h2>Example ATE estimation</h2>
+<p>What is the ATE of quitting smoking versus not on weight change between 1971 and 1982?</p>
+<p>We can use the example data from Hernan and Robins</p>
+<p>Treatment of interest: Quitting smoking (qsmk) Confounders: Sex, Age, Race</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a><span class="fu">require</span>(causaldata)</span>
+<span id="cb2-2"><a href=""></a><span class="fu">require</span>(dplyr)</span>
+<span id="cb2-3"><a href=""></a>ex<span class="ot">&lt;-</span>causaldata<span class="sc">::</span>nhefs <span class="sc">%&gt;%</span> <span class="fu">select</span>(wt82_71, qsmk, age, race, sex) <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span>
+<span id="cb2-4"><a href=""></a>ex</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  wt82_71  qsmk   age race  sex  
+    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;
+1  -10.1      0    42 1     0    
+2    2.60     0    36 0     0    
+3    9.41     0    56 1     1    
+4    4.99     0    68 1     0    
+5    4.99     0    40 0     0    
+6    4.42     0    43 1     1    </code></pre>
+</div>
+</div>
+</section>
+<section id="example-ate-horvitz-thompson-estimator" class="slide level2">
+<h2>Example ATE, Horvitz Thompson Estimator</h2>
+<p><span class="math display">\[\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_iA_i-\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_i(1-A_i) \]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">require</span>(dplyr)</span>
+<span id="cb4-2"><a href=""></a>nhefs<span class="ot">&lt;-</span>causaldata<span class="sc">::</span>nhefs</span>
+<span id="cb4-3"><a href=""></a><span class="co"># Model treatment</span></span>
+<span id="cb4-4"><a href=""></a>trt_model<span class="ot">&lt;-</span><span class="fu">glm</span>(qsmk <span class="sc">~</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(race) <span class="sc">+</span> age <span class="sc">+</span> <span class="fu">I</span>(age<span class="sc">^</span><span class="dv">2</span>), <span class="at">data=</span>nhefs, </span>
+<span id="cb4-5"><a href=""></a>                  <span class="at">family=</span><span class="fu">binomial</span>())</span>
+<span id="cb4-6"><a href=""></a><span class="co"># Estimate propensity score</span></span>
+<span id="cb4-7"><a href=""></a>nhefs<span class="sc">$</span>prop_score<span class="ot">&lt;-</span><span class="fu">ifelse</span>(nhefs<span class="sc">$</span>qsmk<span class="sc">==</span><span class="dv">1</span>, <span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>),</span>
+<span id="cb4-8"><a href=""></a> <span class="dv">1</span><span class="sc">-</span><span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>))</span>
+<span id="cb4-9"><a href=""></a><span class="co"># Estimate unstabilized IPTW</span></span>
+<span id="cb4-10"><a href=""></a>nhefs<span class="sc">$</span>w<span class="ot">&lt;-</span><span class="dv">1</span><span class="sc">/</span>nhefs<span class="sc">$</span>prop_score</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 7
+  wt82_71  qsmk   age race  sex   prop_score     w
+    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;fct&gt;      &lt;dbl&gt; &lt;dbl&gt;
+1  -10.1      0    42 1     0          0.815  1.23
+2    2.60     0    36 0     0          0.741  1.35
+3    9.41     0    56 1     1          0.805  1.24
+4    4.99     0    68 1     0          0.671  1.49</code></pre>
+</div>
+</div>
+</section>
+<section id="example-ate-horvitz-thompson-estimator-1" class="slide level2">
+<h2>Example ATE, Horvitz Thompson Estimator</h2>
+<p><span class="math display">\[\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_iA_i-\frac{1}{n}\sum_i \hat{\mathrm{W}}_iY_i(1-A_i) \]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a>nhefs<span class="sc">$</span>treat<span class="ot">&lt;-</span>nhefs<span class="sc">$</span>w<span class="sc">*</span>nhefs<span class="sc">$</span>wt82_71<span class="sc">*</span>nhefs<span class="sc">$</span>qsmk</span>
+<span id="cb6-2"><a href=""></a>nhefs<span class="sc">$</span>untrt<span class="ot">&lt;-</span>nhefs<span class="sc">$</span>w<span class="sc">*</span>nhefs<span class="sc">$</span>wt82_71<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>nhefs<span class="sc">$</span>qsmk)</span>
+<span id="cb6-3"><a href=""></a>ate<span class="ot">&lt;-</span><span class="fu">mean</span>(nhefs<span class="sc">$</span>treat, <span class="at">na.rm=</span>T)<span class="sc">-</span><span class="fu">mean</span>(nhefs<span class="sc">$</span>untrt, <span class="at">na.rm=</span>T)</span>
+<span id="cb6-4"><a href=""></a>ate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.099299</code></pre>
+</div>
+</div>
+</section>
+<section id="example-ate-hajek-estimator" class="slide level2">
+<h2>Example ATE, Hajek Estimator</h2>
+<p>We may instead want to use regression using least squares</p>
+<p>If instead of minimizing</p>
+<p><span class="math display">\[\sum_i \left[Y_i-(\alpha_0 + \alpha_1 A)\right]^2\]</span></p>
+<p>we minimze <span class="math display">\[\sum_i \widehat{\mathrm{W}}\left[Y_i-(\alpha_0 + \alpha_1 A)\right]^2\]</span></p>
+<p>then we obtain the hajek estimator</p>
+<p><span class="math display">\[\widehat{\alpha}_1=\frac{\sum_i \widehat{W}_i Y_i A_i}{\sum_i \widehat{W}_i A_i}-\frac{\sum_i \widehat{W}_i Y_i\left(1-A_i\right)}{\sum_i \widehat{W}_i\left(1-A_i\right)} \]</span></p>
+</section>
+<section id="example-ate-hajek-estimator-1" class="slide level2">
+<h2>Example ATE, Hajek Estimator</h2>
+<p><span class="math display">\[\frac{\sum_i \widehat{W}_i Y_i A_i}{\sum_i \widehat{W}_i A_i}-\frac{\sum_i \widehat{W}_i Y_i\left(1-A_i\right)}{\sum_i \widehat{W}_i\left(1-A_i\right)} \]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="co"># weighting the regression model</span></span>
+<span id="cb8-2"><a href=""></a>Y_model<span class="ot">&lt;-</span><span class="fu">lm</span>(wt82_71<span class="sc">~</span>qsmk, <span class="at">weights=</span>w, <span class="at">data=</span>nhefs)</span>
+<span id="cb8-3"><a href=""></a><span class="co"># regression based ATE</span></span>
+<span id="cb8-4"><a href=""></a>Y_model<span class="sc">$</span>coefficients[<span class="dv">2</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    qsmk 
+3.154044 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a><span class="co"># Horvitz Thompson ATE</span></span>
+<span id="cb10-2"><a href=""></a>ate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.099299</code></pre>
+</div>
+</div>
+</section>
+<section id="advantages-of-iptw" class="slide level2">
+<h2>Advantages of IPTW</h2>
+<ul>
+<li>Can be used in many scenarios to obatin marginal estimates
+<ul>
+<li>Average Treatment Effect <sup>1</sup> -We saw this</li>
+<li>Average Treatment Effect among Treated (ATT) <sup>2</sup> -next</li>
+<li>Average Treatment Effect among Untreated (ATU) -next</li>
+<li>Used in Survival Analysis <sup>3</sup> -not covered today</li>
+</ul></li>
+<li>Uses all the data</li>
+</ul>
+<aside><ol class="aside-footnotes"><li id="fn4"><p>Hernan <em>et al.</em> What if 2020</p></li><li id="fn5"><p>Sato and Matsuyama <em>Epidemiology</em> 2003</p></li><li id="fn6"><p>Cole and Hernan <em>Comp Meth and Prog in Biomed</em> 2004</p></li></ol></aside></section>
+<section id="the-question-of-interest-1" class="slide level2 center">
+<h2>The question of interest</h2>
+<p>What effect does tPA have on all cause mortality?</p>
+<div class="fragment fade-up">
+<p>Is the ATE what we are interested in?</p>
+<p>Do we expect that everyone coming into an ED would benefit from tPA?</p>
+</div>
+<div class="fragment fade-up">
+<p>What if were were interested in the effect of giving everyone treatment versus not <em>only</em> in the treated?</p>
+</div>
+<div class="fragment fade-up">
+<p>What if were were interested in the effect of giving everyone treatment versus not <em>only</em> in the untreated?</p>
+</div>
+</section>
+<section id="att" class="slide level2">
+<h2>ATT</h2>
+<p>Average Effect among those that were treated.</p>
+<p>ATT also known as the Standardized Mortality Ratio (SMR)<sup>1</sup></p>
+<p>[^]7: Sato and Matsuyama <em>Epidemiology</em> 2003</p>
+<aside><ol class="aside-footnotes"><li id="fn7"><p>Sato and Matsuyama <em>Epidemiology</em> 2003</p></li></ol></aside></section>
+<section id="estimating-iptw-for-the-att" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">Estimating IPTW for the ATT</h2>
+<p>Under a slightly different set of identification conditions:</p>
+<p>Consistency: <span class="math inline">\(Y=Y^{a=1}A+Y^{a=0}(1-A)\)</span></p>
+<div style="margin-top: 100px;">
+<p>Positivity: <span class="math inline">\(P[A=a|\mathbf{L}]&gt;0 \ \forall \ l\)</span> where <span class="math inline">\(f(l|A=1)&gt;0\)</span></p>
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(0)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+</section>
+<section id="estimating-iptw-for-the-att-1" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">Estimating IPTW for the ATT</h2>
+<div style="margin-top: 200px; font-size: 1em; color: red;">
+<p>Positivity: <span class="math inline">\(P[A=a|\mathbf{L}]&gt;0 \ \forall \ l\)</span> where <span class="math inline">\(f(l|A=1)&gt;0\)</span></p>
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(0)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+</section>
+<section id="estimating-iptw-for-the-att-2" class="slide level2">
+<h2>Estimating IPTW for the ATT</h2>
+<p>New weights to make the untreated look like the treated, thereby standing in for them.</p>
+<p><span class="math display">\[
+\widehat{W}_i=
+\begin{cases}
+    A=1,&amp;    1 \\
+    A=0,&amp; \frac{\widehat{\pi}(\mathbf{L})}{1-\widehat{\pi}(\mathbf{L})}
+\end{cases}
+\]</span></p>
+<div class="sourceCode" id="cb12" data-code-line-numbers="7-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="fu">require</span>(dplyr)</span>
+<span id="cb12-2"><a href=""></a>nhefs<span class="ot">&lt;-</span>causaldata<span class="sc">::</span>nhefs</span>
+<span id="cb12-3"><a href=""></a><span class="co"># Model treatment</span></span>
+<span id="cb12-4"><a href=""></a>trt_model<span class="ot">&lt;-</span><span class="fu">glm</span>(qsmk <span class="sc">~</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(race) <span class="sc">+</span> age <span class="sc">+</span> <span class="fu">I</span>(age<span class="sc">^</span><span class="dv">2</span>), <span class="at">data=</span>nhefs, </span>
+<span id="cb12-5"><a href=""></a>                  <span class="at">family=</span><span class="fu">binomial</span>())</span>
+<span id="cb12-6"><a href=""></a><span class="co"># Estimate propensity score</span></span>
+<span id="cb12-7"><a href=""></a>nhefs<span class="sc">$</span>prop_score<span class="ot">&lt;-</span><span class="fu">ifelse</span>(nhefs<span class="sc">$</span>qsmk<span class="sc">==</span><span class="dv">1</span>, <span class="dv">1</span>,</span>
+<span id="cb12-8"><a href=""></a> <span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>)<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span><span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>)))</span>
+<span id="cb12-9"><a href=""></a> nhefs<span class="sc">$</span>w_att<span class="ot">&lt;-</span><span class="dv">1</span><span class="sc">/</span>nhefs<span class="sc">$</span>prop_score</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "The estimated ATT is: 2.06"</code></pre>
+</div>
+</div>
+</section>
+<section id="atu" class="slide level2">
+<h2>ATU</h2>
+<p>Average Effect among those that were untreated.</p>
+<p>ATT also known as the Standardized Risk/Rate Ratio (SMR)<sup>1</sup></p>
+<aside><ol class="aside-footnotes"><li id="fn8"><p>Sato and Matsuyama <em>Epidemiology</em> 2003</p></li></ol></aside></section>
+<section id="estimating-iptw-for-the-atu" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">Estimating IPTW for the ATU</h2>
+<p>Under a slightly different set of identification conditions:</p>
+<p>Consistency: <span class="math inline">\(Y=Y^{a=1}A+Y^{a=0}(1-A)\)</span></p>
+<div style="margin-top: 100px;">
+<p>Positivity: <span class="math inline">\(P[A=a|\mathbf{L}]&gt;0 \ \forall \ l\)</span> where <span class="math inline">\(f(l|A=0)&gt;0\)</span></p>
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(1)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+</section>
+<section id="estimating-iptw-for-the-att-3" class="slide level2" data-auto-animate="true">
+<h2 data-id="quarto-animate-title">Estimating IPTW for the ATT</h2>
+<div style="margin-top: 200px; font-size: 1em; color: red;">
+<p>Positivity: <span class="math inline">\(P[A=a|\mathbf{L}]&gt;0 \ \forall \ l\)</span> where <span class="math inline">\(f(l|A=0)&gt;0\)</span></p>
+<p>Conditional Exchangeability: <span class="math inline">\(Y^{(1)}\perp\!\!\!\perp A| L\)</span></p>
+</div>
+</section>
+<section id="estimating-iptw-for-the-att-4" class="slide level2">
+<h2>Estimating IPTW for the ATT</h2>
+<p>New weights to make the treated look like the untreated, thereby standing in for them.</p>
+<p><span class="math display">\[
+\widehat{W}_i=
+\begin{cases}
+    A=1,&amp;    \frac{1-\widehat{\pi}(\mathbf{L})}{\widehat{\pi}(\mathbf{L})} \\
+    A=0,&amp; 1
+\end{cases}
+\]</span></p>
+<div class="sourceCode" id="cb14" data-code-line-numbers="7-8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">require</span>(dplyr)</span>
+<span id="cb14-2"><a href=""></a>nhefs<span class="ot">&lt;-</span>causaldata<span class="sc">::</span>nhefs</span>
+<span id="cb14-3"><a href=""></a><span class="co"># Model treatment</span></span>
+<span id="cb14-4"><a href=""></a>trt_model<span class="ot">&lt;-</span><span class="fu">glm</span>(qsmk <span class="sc">~</span> <span class="fu">as.factor</span>(sex) <span class="sc">+</span> <span class="fu">as.factor</span>(race) <span class="sc">+</span> age <span class="sc">+</span> <span class="fu">I</span>(age<span class="sc">^</span><span class="dv">2</span>), <span class="at">data=</span>nhefs, </span>
+<span id="cb14-5"><a href=""></a>                  <span class="at">family=</span><span class="fu">binomial</span>())</span>
+<span id="cb14-6"><a href=""></a><span class="co"># Estimate propensity score</span></span>
+<span id="cb14-7"><a href=""></a>nhefs<span class="sc">$</span>prop_score<span class="ot">&lt;-</span><span class="fu">ifelse</span>(nhefs<span class="sc">$</span>qsmk<span class="sc">==</span><span class="dv">0</span>, <span class="dv">1</span>,</span>
+<span id="cb14-8"><a href=""></a> (<span class="dv">1</span><span class="sc">-</span><span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>))<span class="sc">/</span><span class="fu">predict</span>(trt_model, <span class="at">type=</span><span class="st">"response"</span>))</span>
+<span id="cb14-9"><a href=""></a> nhefs<span class="sc">$</span>w_atu<span class="ot">&lt;-</span><span class="dv">1</span><span class="sc">/</span>nhefs<span class="sc">$</span>prop_score</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "The estimated ATT is: 1.67"</code></pre>
+</div>
+</div>
+</section>
+<section id="second-activity" class="slide level2 center">
+<h2>SECOND ACTIVITY</h2>
+<p>Estimate the ATE, ATT, and ATU using IPTW in the tPA data</p>
+<ol type="1">
+<li><p>Explain in words what each estimand means in this context, and which you think has meaning</p></li>
+<li><p>Estimate the ATE, ATT, and ATU in the data.</p></li>
+</ol>
 </section>
 <section id="standard-error-estimation-bootstrapping" class="slide level2">
 <h2>Standard Error Estimation-Bootstrapping</h2>
@@ -691,7 +1032,6 @@ Talk ATE
   <script src="TF_Presentation_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
-  <script src="TF_Presentation_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
   <script src="TF_Presentation_files/libs/revealjs/plugin/quarto-support/support.js"></script>
   
 
@@ -713,8 +1053,7 @@ Talk ATE
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
-'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'chalkboard': {"buttons":true},
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
  
         // Display controls in the bottom right corner
@@ -885,7 +1224,7 @@ Talk ATE
         },
 
         // reveal.js plugins
-        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
           RevealMath,
           RevealNotes,
@@ -894,6 +1233,44 @@ Talk ATE
         ]
       });
     </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
     <script id="quarto-html-after-body" type="application/javascript">
     window.document.addEventListener("DOMContentLoaded", function (event) {
       const toggleBodyColorMode = (bsSheetEl) => {
